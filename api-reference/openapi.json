@@ -11,7 +11,7 @@
     }
   ],
   "paths": {
-    "/APIServlet?action=appcreatemissingpunch": {
+    "/create-missing-punch": {
       "post": {
         "summary": "Create Missing Punch",
         "description": "Create a missing punch request for an employee.",
@@ -72,7 +72,7 @@
         ]
       }
     },
-    "/APIServlet?action=appmissingpunchrequest": {
+    "/approve-missing-punch": {
       "post": {
         "summary": "Approve/Reject Missing Punch",
         "description": "Approve or reject missing punch requests for employees.",
@@ -147,3 +147,4 @@
       }
     }
   }
+}
