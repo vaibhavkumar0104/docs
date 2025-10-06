@@ -1,140 +1,70 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.1.0",
   "info": {
-    "title": "Employee Punch API",
+    "title": "Employee Punch Approval API",
     "version": "1.0.0",
-    "description": "API documentation for Employee Punch system."
+    "description": "API to approve or reject employee punch requests",
+    "license": {
+      "name": "MIT"
+    }
   },
   "servers": [
     {
-      "url": "http://192.168.7.124:9999/erp"
+      "url": "http://192.168.7.124:9999/erp/index.html"
     }
   ],
+  "security": [
+    { "bearerAuth": [] }
+  ],
   "paths": {
-    "/create-missing-punch": {
+    "/APIServlet": {
       "post": {
-        "summary": "Create Missing Punch",
-        "description": "Create a missing punch request for an employee.",
+        "summary": "Approve or reject employee punch requests",
+        "description": "Allows an authorized user to approve or reject missing punch requests for employees.",
+        "parameters": [
+          {
+            "name": "action",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["appmissingpunchrequest"]
+            },
+            "description": "Action to be performed by the API"
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "employeePhoneNumber": { "type": "string", "example": "919714275344" },
-                  "type": { "type": "string", "example": "IN" },
-                  "date": { "type": "string", "example": "2025-10-06" },
-                  "time": { "type": "string", "example": "09:15:00" },
-                  "reason": { "type": "string", "example": "Late entry" },
-                  "status": { "type": "string", "example": "Pending" },
-                  "isanotherpunchallowed": { "type": "string", "example": "yes" }
-                },
-                "required": ["employeePhoneNumber", "type", "date", "time"]
+                "$ref": "#/components/schemas/EmployeePunchApprovalRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Success response",
+            "description": "Punch request processed successfully",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "641",
-                    "message": "Missing Punch Inserted Successfully. Inserted 641",
-                    "status": "Success"
-                  }
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeePunchApprovalResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "Error response",
+            "description": "Error processing the request",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "0",
-                    "message": "Invalid employee phone number",
-                    "status": "Error"
-                  }
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/approve-missing-punch": {
-      "post": {
-        "summary": "Approve/Reject Missing Punch",
-        "description": "Approve or reject missing punch requests for employees.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "employeeDetails": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "punchId": { "type": "string", "example": "123" },
-                        "status": { "type": "string", "example": "Approved" }
-                      },
-                      "required": ["punchId", "status"]
-                    }
-                  }
-                },
-                "required": ["employeeDetails"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success response",
-            "content": {
-              "application/json": {
-                "example": {
-                  "data": {
-                    "id": "123",
-                    "message": "Punch request processed successfully",
-                    "status": "Success"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Error response",
-            "content": {
-              "application/json": {
-                "example": {
-                  "data": {
-                    "id": "123",
-                    "message": "Approver has no permission for Employee Punch Approval",
-                    "status": "Error"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
+        }
       }
     }
   },
@@ -144,6 +74,53 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "EmployeePunchApprovalRequest": {
+        "type": "object",
+        "properties": {
+          "employeeDetails": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["punchId", "status"],
+              "properties": {
+                "punchId": {
+                  "type": "string",
+                  "description": "The ID of the punch record"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["Approved", "Rejected"],
+                  "description": "Status to assign to the punch record"
+                }
+              }
+            }
+          }
+        },
+        "required": ["employeeDetails"]
+      },
+      "EmployeePunchApprovalResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the request was successful"
+          }
+        },
+        "required": ["success"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "message": { "type": "string" }
+        },
+        "example": {
+          "error": "Error: Approver has no permission for Employee Punch Approval.",
+          "message": "Error"
+        }
       }
     }
   }
