@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8888"
+      "url": "http://192.168.7.124:9999/erp/index.html"
     }
   ],
   "security": [
